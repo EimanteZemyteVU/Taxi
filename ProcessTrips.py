@@ -18,5 +18,8 @@ def transformTrips(trips):
     # Calculate the duration of each trip and format it to hh:mm:ss
     trips['trip_duration'] = (trips['tpep_dropoff_datetime'] - trips['tpep_pickup_datetime']).apply(lambda x: str(x).split()[2] if pd.notnull(x) else None)
 
+    # Adjust total_amount to exclude tips
+    # Reason: total_amount has only card tips included (cash tips are not registered),
+    trips['total_amount'] -= trips['tip_amount']
 
     return trips

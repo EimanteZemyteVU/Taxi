@@ -7,8 +7,9 @@ import matplotlib.pyplot as plt
 
 
 import DataImport
+import ProcessTrips
 
-trips = DataImport.trips
+trips = ProcessTrips.transformTrips(DataImport.trips)
 zones = DataImport.zones
 
 #cia bus funkcija kur paduodu trips ir zones ko gero ir paisysiu grafikus????
@@ -75,6 +76,6 @@ g = sns.PairGrid(filtered_trips, diag_sharey = False)
 tmp_plt = g.map_diag(sns.histplot)
 tmp_plt = g.map_lower(sns.scatterplot)
 tmp_plt = g.map_upper(reg_coef)
-plt.show()
+#plt.show()
 
 
