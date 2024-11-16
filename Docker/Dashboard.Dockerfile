@@ -4,11 +4,14 @@ FROM python:3.9-slim
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+# Copy Dashboard_requirements.txt from the parent directory into the container
+COPY ../Dashboard_requirements.txt /app/
 
 # Install any needed packages specified in Dashboard_requirements.txt
 RUN pip install --no-cache-dir -r Dashboard_requirements.txt
+
+# Copy app.py from the parent directory into the container
+COPY ../app.py /app/
 
 # Expose port 8501 (the default port for Streamlit)
 EXPOSE 8501

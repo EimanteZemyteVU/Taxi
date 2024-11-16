@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  streamlit:
+    build:
+      context: ..
+      dockerfile: Docker/Dashboard.Dockerfile  # Use Dashboard.Dockerfile in the Docker folder
+    container_name: streamlit_dashboard
+    ports:
+      - "8501:8501"  # Map container port 8501 to host port 8501
+    volumes:
+      - ../:/app     # Mount the Taxi folder to /app inside the container
