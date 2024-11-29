@@ -39,6 +39,9 @@ def transformTrips(trips):
     # Reason: total_amount has only card tips included (cash tips are not registered),
     trips['total_amount'] -= trips['tip_amount']
 
+    # Add columns for visuals
+    trips['pickup_hour'] = trips['tpep_pickup_datetime'].dt.hour
+    trips['pickup_weekday'] = trips['tpep_pickup_datetime'].dt.day_name()
 
     #LAIKINAS: - PASISALINU OUTLIERS NAUDOJANT IQR nes labai iskraipo grafikus ir negaliu apimti 
     #visu atveju su vieno excelio duomenim
@@ -71,7 +74,7 @@ def transformTrips(trips):
 
 def MergeZones(trips, zones):
     trips = trips.merge(zones, left_on='PULocationID', right_on='LocationID', how='left', suffixes=('_pickup', '_pickup_zone'))
-    trips = trips.merge(zones, left_on='DOLocationID', right_on='LocationID', how='left', suffixes=('_pickup', '_dropoff_zone'))
+    trips = trips.merge(zones, left_on='DOLocationID', right_on='LocationID', how='left', suffixes=('_pickup', '_dropoff'))
     trips = trips.drop(columns=['LocationID_pickup', 'LocationID_dropoff'])
     trips = trips.rename(columns={'Zone_pickup': 'pickup_zone', 'Zone_dropoff': 'dropoff_zone'})
     return trips

@@ -1,20 +1,25 @@
 # Use an official Python runtime as a parent image
 FROM python:3.9-slim
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy Dashboard_requirements.txt from the parent directory into the container
+# Copy Python scripts
+COPY ../app.py /app/
+COPY ../DataImport.py /app/
+COPY ../ProcessTrips.py /app/
+
+# Copy the required data files
+COPY ../yellow_tripdata_2019-01_full.csv /app/
+COPY ../taxi+_zone_lookup.csv /app/
+
+# Copy the requirements file
 COPY ../Dashboard_requirements.txt /app/
 
-# Install any needed packages specified in Dashboard_requirements.txt
+# Install the dependencies
 RUN pip install --no-cache-dir -r Dashboard_requirements.txt
 
-# Copy app.py from the parent directory into the container
-COPY ../app.py /app/
-
-# Expose port 8501 (the default port for Streamlit)
+# Expose port 8501
 EXPOSE 8501
 
-# Run Streamlit when the container launches
+# Run Streamlit
 CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
