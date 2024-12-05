@@ -43,6 +43,12 @@ def transformTrips(trips):
     trips['pickup_hour'] = trips['tpep_pickup_datetime'].dt.hour
     trips['pickup_weekday'] = trips['tpep_pickup_datetime'].dt.day_name()
 
+    # Encode locations
+    # Replace each LocationID with the average total_amount for that LocationID
+    # https://www.kaggle.com/code/ryanholbrook/target-encoding
+    for col in ['PULocationID', 'DOLocationID']:
+        trips[f'{col}_encoded'] = trips.groupby(col)['total_amount'].transform('mean')
+        
     #LAIKINAS: - PASISALINU OUTLIERS NAUDOJANT IQR nes labai iskraipo grafikus ir negaliu apimti 
     #visu atveju su vieno excelio duomenim
 
@@ -69,6 +75,8 @@ def transformTrips(trips):
     print(f"Original number of rows: {len(trips)}")
     print(f"Number of rows after removing outliers: {len(filtered_trips)}")
 
+    #--------------------
+    # Taip pat reikia pakoreguoti, kad nebutu NA reikmsiu
 
     return trips
 
