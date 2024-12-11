@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  # SQL DB
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Interface
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@vu.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False" # Run pgAdmin in Desktop mode (avoids session management issues)
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin  # Persistent storage for pgAdmin state
+
+  # Export data to SQL
+  data_exporter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
+    command: ["./wait-for-postgres.sh", "postgres", "5432", "python", "DataExporter.py"]
+
+volumes:
+  postgres_data:   # Volume for Postgres data
+  pgadmin_data:    # Volume for pgAdmin data
