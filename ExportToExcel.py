@@ -7,5 +7,5 @@ import DataImport
 
 trips_import = ProcessTrips.transformTrips(DataImport.trips)
 
-trips_import.to_csv('trips_import_2020-01.csv', index=False)
+trips_import.to_csv('trips_import_2020-06.csv', index=False)
 
