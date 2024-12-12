@@ -7,10 +7,7 @@ import re
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 # # Read the CSV file into a DataFrame
-# filename = "yellow_tripdata_2020-06.csv"
-# Read the CSV file into a DataFrame
-filename = "yellow_tripdata_2020-01.csv"
-
+filename = "yellow_tripdata_2020-06.csv"
 
 trips = pd.read_csv(filename)
 zones =  pd.read_csv("taxi+_zone_lookup.csv")
