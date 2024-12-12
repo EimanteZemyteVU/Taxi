@@ -14,7 +14,7 @@ COPY . /app
 RUN pip install pandas sqlalchemy psycopg2-binary
 
 # Make wait-for-postgres.sh executable
-RUN chmod +x wait-for-postgres.sh
+RUN chmod +x /app/wait-for-postgres.sh
 
 # Run DataExporter.py after PostgreSQL is ready
-CMD ["./wait-for-postgres.sh", "python", "DataExporter.py"]
+CMD ["/app/wait-for-postgres.sh", "postgres", "5432", "python", "DataExporter.py"]
