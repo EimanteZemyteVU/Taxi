@@ -7,18 +7,12 @@ import plotly.express as px
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import seaborn as sns
-<<<<<<< Updated upstream
-=======
 import matplotlib.lines as mlines
->>>>>>> Stashed changes
 
 # Data processing
 trips = ProcessTrips.transformTrips(DataImport.trips)
 zones = DataImport.zones
-<<<<<<< Updated upstream
-=======
 TripsWithZones = ProcessTrips.MergeZones(trips, zones)
->>>>>>> Stashed changes
 
 # Set a fixed page width
 st.set_page_config(layout="wide", page_title="Taxi Explanatory Data Analysis")
@@ -54,20 +48,11 @@ col4.metric("Avg. Passenger Count", f"{average_passenger_count:,.1f}", help="The
 
 # -------------
 
-<<<<<<< Updated upstream
-import plotly.graph_objects as go
-import plotly.express as px
-=======
->>>>>>> Stashed changes
 
 col5, col6, col7 = st.columns([1, 1, 2])  # Network chart column is wider
 
 with col5:
-<<<<<<< Updated upstream
-    st.markdown("### Passenger Distribution")  # Adjusted font size for subheader
-=======
-    st.markdown("#### Passenger Distribution")  # Adjusted font size for subheader
->>>>>>> Stashed changes
+    st.markdown("#### Passenger Distribution") 
 
     # Calculate the passenger count distribution
     passenger_distribution = trips['passenger_count'].value_counts().sort_index()
@@ -92,17 +77,13 @@ with col5:
             y=-0.2,  # Position below the chart
             x=0.5,
             xanchor="center",
-            font=dict(color="white"),  # White font for dark theme
+            font=dict(color="white"),
         ),
     )
     st.plotly_chart(fig, use_container_width=True)
 
 with col6:
-<<<<<<< Updated upstream
-    st.markdown("### Payment Type Distribution")  # Adjusted font size for subheader
-=======
-    st.markdown("#### Payment Type Distribution")  # Adjusted font size for subheader
->>>>>>> Stashed changes
+    st.markdown("#### Payment Type Distribution") 
 
     # Define the mapping of numeric codes to payment descriptions
     payment_type_map = {
@@ -152,18 +133,10 @@ with col6:
             y=-0.2,  # Position below the chart
             x=0.5,
             xanchor="center",
-            font=dict(color="white"),  # White font for dark theme
+            font=dict(color="white"), 
         ),
     )
     st.plotly_chart(fig, use_container_width=True)
-
-<<<<<<< Updated upstream
-# Kol kas neveikia (memory error) - reiks pamastyt ka daryt vietoj jo
-with col7:
-    st.markdown("### Popular Destinations (Network Chart)")  # Adjusted font size for subheader
-    st.text("Placeholder for Network Chart")
-    # Replace with actual network chart code
-=======
 
 with col7:
     st.markdown("#### Popular Destinations (Network Chart)", unsafe_allow_html=True)
@@ -224,92 +197,29 @@ with col7:
 
     # Display the plot in Streamlit
     st.pyplot(fig, bbox_inches='tight', pad_inches=0.1)  # Ensure no whitespace around the plot
->>>>>>> Stashed changes
 
-
-# --------
-
-<<<<<<< Updated upstream
-# col8, col9 = st.columns([1, 1])  # Equal widths
-
-# with col8:
-#     st.subheader("Trip Distance Distribution")
-    
-#     # Plot the histogram - trip distance distribution
-#     fig, ax = plt.subplots(figsize=(10, 5))  # Adjust figure size
-#     trips['trip_distance'].plot(
-#         kind='hist',
-#         bins=20,  # Adjust number of bins if more data is available
-#         color='blue',
-#         edgecolor='black',
-#         ax=ax,
-#         title='Trip Distance Distribution'
-#     )
-#     ax.set_xlabel('Trip Distance (miles)', fontsize=12)
-#     ax.set_ylabel('Frequency', fontsize=12)
-#     ax.tick_params(axis='both', labelsize=10)
-#     st.pyplot(fig)
-
-# with col9:
-#     st.subheader("Trips Heatmap (Hour vs Weekday)")
-
-#     # Aggregate data to get counts for each hour-weekday pair
-#     heatmap_data = trips.groupby(['pickup_weekday', 'pickup_hour']).size().reset_index(name='trip_count')
-
-#     # Pivot the data for heatmap
-#     heatmap_pivot = heatmap_data.pivot(index="pickup_weekday", columns="pickup_hour", values="trip_count")
-
-#     # Reorder weekdays to start from Monday
-#     weekdays_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-#     heatmap_pivot = heatmap_pivot.reindex(weekdays_order).fillna(0)
-
-#     # Ensure X-axis includes all hours (0-23)
-#     hour_range = list(range(24))
-#     heatmap_pivot = heatmap_pivot.reindex(columns=hour_range, fill_value=0)
-
-#     # Plot heatmap
-#     fig, ax = plt.subplots(figsize=(14, 7))  # Adjust figure size
-#     sns.heatmap(
-#         heatmap_pivot, 
-#         cmap="YlGnBu", 
-#         linewidths=.5, 
-#         annot=False, 
-#         fmt='d', 
-#         cbar_kws={'label': 'Trip Count'}, 
-#         ax=ax
-#     )
-#     ax.set_title("Trips Heatmap (Hour vs Weekday)", fontsize=14)
-#     ax.set_xlabel("Hour of Day", fontsize=12)
-#     ax.set_ylabel("Weekday", fontsize=12)
-#     ax.set_xticks(range(24))
-#     ax.set_xticklabels(hour_range, rotation=45, fontsize=10)
-#     ax.tick_params(axis='y', labelsize=10)
-#     plt.tight_layout()
-#     st.pyplot(fig)
-=======
 col8, col9 = st.columns([1, 1])  # Equal widths
 
 with col8:
-    st.markdown("#### Trip Distance Distribution", unsafe_allow_html=True)  # Make text white
+    st.markdown("#### Trip Distance Distribution") 
     
-    # Plot the histogram - trip distance distribution
+    # Plot the histogram 
     fig, ax = plt.subplots(figsize=(10, 5), facecolor='none')  # Adjust figure size
     trips['trip_distance'].plot(
         kind='hist',
         bins=20,  # Adjust number of bins if more data is available
-        color='blue',
+        color="#66C5CC",
         edgecolor='black',
         ax=ax
     )
     ax.set_facecolor('none')
-    ax.set_xlabel('Trip Distance (miles)', fontsize=12, color='white')  # White text for axis labels
-    ax.set_ylabel('Frequency', fontsize=12, color='white')  # White text for axis labels
-    ax.tick_params(axis='both', labelsize=10, colors='white')  # White tick labels
-
+    ax.set_xlabel('Trip Distance (miles)', fontsize=12, color='white')
+    ax.set_ylabel('Frequency', fontsize=12, color='white')
+    ax.tick_params(axis='both', labelsize=10, colors='white')
     st.pyplot(fig)
 
 with col9:
-    st.markdown("#### Trips Heatmap (Hour vs Weekday)", unsafe_allow_html=True)  # Make text white
+    st.markdown("#### Trips Heatmap (Hour vs Weekday)") 
 
     # Aggregate data to get counts for each hour-weekday pair
     heatmap_data = trips.groupby(['pickup_weekday', 'pickup_hour']).size().reset_index(name='trip_count')
@@ -325,34 +235,35 @@ with col9:
     hour_range = list(range(24))
     heatmap_pivot = heatmap_pivot.reindex(columns=hour_range, fill_value=0)
 
-    # Plot heatmap
-    fig, ax = plt.subplots(figsize=(14, 7), facecolor='none')  # Adjust figure size
+    # Create the heatmap plot
+    fig, ax = plt.subplots(figsize=(14, 7), facecolor='none')
+
+    # Plot the heatmap with a color scale from red (most popular) to green (least popular)
+    cmap = plt.cm.RdYlGn_r  # Reversed Red to Yellow to Green colormap
     sns.heatmap(
         heatmap_pivot, 
-        cmap="YlGnBu", 
-        linewidths=.5, 
+        cmap=cmap,  # Use the reversed red-yellow-green colormap
+        linewidths=0.5, 
         annot=True,  # Annotate the heatmap values
         fmt='d', 
         cbar_kws={'label': 'Trip Count'}, 
         ax=ax
     )
-    ax.set_xlabel("Hour of Day", fontsize=12, color='white')  # White text for x-axis label
-    ax.set_ylabel("Weekday", fontsize=12, color='white')  # White text for y-axis label
+    ax.set_xlabel("Hour of Day", fontsize=12, color='white')
+    ax.set_ylabel("Weekday", fontsize=12, color='white')
     ax.set_xticks(range(24))
-    ax.set_xticklabels(hour_range, rotation=45, fontsize=10, color='white')  # White text for tick labels
-    ax.tick_params(axis='y', labelsize=10, colors='white')  # White text for y-axis tick labels
+    ax.set_xticklabels(hour_range, rotation=45, fontsize=10, color='white')
+    ax.tick_params(axis='y', labelsize=10, colors='white')
 
     # Update annotations (values in the heatmap) to white
     for text in ax.texts:
         text.set_color('white')
 
-    ax.set_facecolor('none')
-
-    # Set the colorbar legend text to white
+    # Update colorbar text to white
     colorbar = ax.collections[0].colorbar
     colorbar.ax.tick_params(labelsize=10, labelcolor='white')  # Change color of colorbar ticks to white
     colorbar.set_label('Trip Count', fontsize=12, color='white')  # Change color of colorbar label to white
 
+    ax.set_facecolor('none')
     plt.tight_layout()
     st.pyplot(fig)
->>>>>>> Stashed changes
