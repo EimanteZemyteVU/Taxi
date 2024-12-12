@@ -12,7 +12,8 @@ import matplotlib.lines as mlines
 # Data processing
 trips = ProcessTrips.transformTrips(DataImport.trips)
 zones = DataImport.zones
-TripsWithZones = ProcessTrips.MergeZones(trips, zones)
+trips = ProcessTrips.MergeZones(trips, zones)
+
 
 # Set a fixed page width
 st.set_page_config(layout="wide", page_title="Taxi Explanatory Data Analysis")
@@ -20,16 +21,59 @@ st.set_page_config(layout="wide", page_title="Taxi Explanatory Data Analysis")
 # Dashboard title
 st.title("Taxi Data Preview")
 
-# Sidebar for filters (not working yet) - MOCKUP
+# Sidebar for filters 
 with st.sidebar:
-    # st.image("taxi_image.png", use_column_width=True)  # Replace with your taxi image
-    st.header("Filters")
-    st.selectbox("Vendor", ["Vendor 1", "Vendor 2"], help="Select the taxi vendor")
-    st.date_input("Date Range", [], help="Choose the start and end date for the data")
-    st.text_input("Pick-up Location", help="Enter the pick-up location")
-    st.text_input("Drop-off Location", help="Enter the drop-off location")
-    st.selectbox("Payment Type", ["Cash", "Card", "Other"], help="Choose the payment method")
-    st.selectbox("Rate Code", ["Standard", "Other"], help="Select the rate code")
+
+    #----- Vendors filter
+    vendor_map = {
+        1: "Creative Mobile Technologies",
+        2: "VeriFone Inc."
+    }
+    unique_vendor_ids = trips['VendorID'].unique()
+    vendor_options = ["All"] + [vendor_map.get(vendor_id, f"Unknown Vendor {vendor_id}") for vendor_id in unique_vendor_ids]
+
+    vendor_option = st.selectbox("Vendor", vendor_options, help="Select the taxi vendor")
+
+    # Filter trips based on the selected vendor
+    if vendor_option != "All":
+        # Reverse the mapping to get VendorID from the vendor name
+        vendor_id = [vendor_id for vendor_id, name in vendor_map.items() if name == vendor_option][0]
+        trips = trips[trips['VendorID'] == vendor_id]  # Filter trips by the selected vendor
+
+    #----- Date range filter
+    min_date = trips['pickup_date'].min()
+    max_date = trips['pickup_date'].max()
+
+    selected_start_date, selected_end_date = st.date_input(
+        "Date Range",
+        [min_date, max_date],
+        min_value=min_date,
+        max_value=max_date,
+        help="Choose the start and end date for the data"
+    )
+
+    # Filter trips by the selected date range
+    trips = trips[(trips['pickup_date'] >= pd.to_datetime(selected_start_date)) & 
+                  (trips['pickup_date'] <= pd.to_datetime(selected_end_date))]
+    
+    #------ Payment type filter
+    payment_type_map = {
+        1: 'Credit card',
+        2: 'Cash',
+        3: 'No charge',
+        4: 'Dispute',
+        5: 'Unknown',
+        6: 'Voided trip'
+    }
+    unique_payment_types = trips['payment_type'].unique()
+    payment_type_options = ['All'] + [payment_type_map.get(pt, f"Unknown Payment Type {pt}") for pt in unique_payment_types]  # Map numeric payment types
+    payment_type = st.selectbox("Payment Type", payment_type_options, help="Choose the payment method")
+    
+    # Filter trips 
+    if payment_type != "All":
+        # Reverse the mapping to get the numeric payment type from the description
+        payment_type_id = [key for key, value in payment_type_map.items() if value == payment_type][0]
+        trips = trips[trips['payment_type'] == payment_type_id] 
 
 # -------------
 # Cards visuals: 
@@ -142,7 +186,7 @@ with col7:
     st.markdown("#### Popular Destinations (Network Chart)", unsafe_allow_html=True)
 
     # Identify the most frequent routes by grouping pickup and dropoff zones
-    top_routes = TripsWithZones.groupby(['pickup_zone', 'Zone_dropoff_zone'], as_index=False) \
+    top_routes = trips.groupby(['pickup_zone', 'Zone_dropoff_zone'], as_index=False) \
         .size() \
         .rename(columns={'size': 'trip_count'}) \
         .sort_values('trip_count', ascending=False) \
@@ -221,49 +265,54 @@ with col8:
 with col9:
     st.markdown("#### Trips Heatmap (Hour vs Weekday)") 
 
-    # Aggregate data to get counts for each hour-weekday pair
-    heatmap_data = trips.groupby(['pickup_weekday', 'pickup_hour']).size().reset_index(name='trip_count')
+    # Check if there are at least 7 days in the filtered trips DataFrame
+    unique_dates = trips['pickup_date'].nunique()  # Get the number of unique dates in the filtered data
+    if unique_dates < 7:
+        st.write("Please select at least 7 days in the date filter to get the visual.")
+    else:
+        # Aggregate data to get counts for each hour-weekday pair
+        heatmap_data = trips.groupby(['pickup_weekday', 'pickup_hour']).size().reset_index(name='trip_count')
 
-    # Pivot the data for heatmap
-    heatmap_pivot = heatmap_data.pivot(index="pickup_weekday", columns="pickup_hour", values="trip_count")
+        # Pivot the data for heatmap
+        heatmap_pivot = heatmap_data.pivot(index="pickup_weekday", columns="pickup_hour", values="trip_count")
 
-    # Reorder weekdays to start from Monday
-    weekdays_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    heatmap_pivot = heatmap_pivot.reindex(weekdays_order).fillna(0)
+        # Reorder weekdays to start from Monday
+        weekdays_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        heatmap_pivot = heatmap_pivot.reindex(weekdays_order).fillna(0)
 
-    # Ensure X-axis includes all hours (0-23)
-    hour_range = list(range(24))
-    heatmap_pivot = heatmap_pivot.reindex(columns=hour_range, fill_value=0)
+        # Ensure X-axis includes all hours (0-23)
+        hour_range = list(range(24))
+        heatmap_pivot = heatmap_pivot.reindex(columns=hour_range, fill_value=0)
 
-    # Create the heatmap plot
-    fig, ax = plt.subplots(figsize=(14, 7), facecolor='none')
+        # Create the heatmap plot
+        fig, ax = plt.subplots(figsize=(14, 7), facecolor='none')
 
-    # Plot the heatmap with a color scale from red (most popular) to green (least popular)
-    cmap = plt.cm.RdYlGn_r  # Reversed Red to Yellow to Green colormap
-    sns.heatmap(
-        heatmap_pivot, 
-        cmap=cmap,  # Use the reversed red-yellow-green colormap
-        linewidths=0.5, 
-        annot=True,  # Annotate the heatmap values
-        fmt='d', 
-        cbar_kws={'label': 'Trip Count'}, 
-        ax=ax
-    )
-    ax.set_xlabel("Hour of Day", fontsize=12, color='white')
-    ax.set_ylabel("Weekday", fontsize=12, color='white')
-    ax.set_xticks(range(24))
-    ax.set_xticklabels(hour_range, rotation=45, fontsize=10, color='white')
-    ax.tick_params(axis='y', labelsize=10, colors='white')
+        # Plot the heatmap with a color scale from red (most popular) to green (least popular)
+        cmap = plt.cm.RdYlGn_r  # Reversed Red to Yellow to Green colormap
+        sns.heatmap(
+            heatmap_pivot, 
+            cmap=cmap,  # Use the reversed red-yellow-green colormap
+            linewidths=0.5, 
+            annot=True,  # Annotate the heatmap values
+            fmt='d', 
+            cbar_kws={'label': 'Trip Count'}, 
+            ax=ax
+        )
+        ax.set_xlabel("Hour of Day", fontsize=12, color='white')
+        ax.set_ylabel("Weekday", fontsize=12, color='white')
+        ax.set_xticks(range(24))
+        ax.set_xticklabels(hour_range, rotation=45, fontsize=10, color='white')
+        ax.tick_params(axis='y', labelsize=10, colors='white')
 
-    # Update annotations (values in the heatmap) to white
-    for text in ax.texts:
-        text.set_color('white')
+        # Update annotations (values in the heatmap) to white
+        for text in ax.texts:
+            text.set_color('white')
 
-    # Update colorbar text to white
-    colorbar = ax.collections[0].colorbar
-    colorbar.ax.tick_params(labelsize=10, labelcolor='white')  # Change color of colorbar ticks to white
-    colorbar.set_label('Trip Count', fontsize=12, color='white')  # Change color of colorbar label to white
+        # Update colorbar text to white
+        colorbar = ax.collections[0].colorbar
+        colorbar.ax.tick_params(labelsize=10, labelcolor='white')  # Change color of colorbar ticks to white
+        colorbar.set_label('Trip Count', fontsize=12, color='white')  # Change color of colorbar label to white
 
-    ax.set_facecolor('none')
-    plt.tight_layout()
-    st.pyplot(fig)
+        ax.set_facecolor('none')
+        plt.tight_layout()
+        st.pyplot(fig)
